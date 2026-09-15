@@ -1,0 +1,18 @@
+{
+  "model_name": "Logistic Regression",
+  "requires_scaling": true,
+  "test_metrics": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "roc_auc": 1.0,
+    "average_precision": 1.0
+  },
+  "feature_names": [
+    "num_clicks",
+    "num_carts",
+    "num_events",
+    "num_unique_items"
+  ]
+}
