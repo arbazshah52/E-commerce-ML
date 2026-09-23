@@ -1,6 +1,8 @@
 import json
 
 import joblib
+import sklearn
+from sklearn.pipeline import Pipeline
 
 from .data_processing import FEATURE_COLUMNS
 
@@ -26,12 +28,20 @@ def save_model(
     """Persist the trained model package and its evaluation metadata."""
     print("Saving model...")
     model_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump({"model": model, "scaler": scaler, "model_name": model_name}, model_path)
+    if isinstance(model, Pipeline):
+        artifact = model
+    elif scaler is not None:
+        artifact = Pipeline([("scaler", scaler), ("classifier", model)])
+    else:
+        artifact = Pipeline([("classifier", model)])
+    joblib.dump(artifact, model_path)
     print("Model saved to:", model_path)
 
     metadata = {
         "model_name": model_name,
-        "requires_scaling": scaler is not None,
+        "artifact_type": "sklearn.pipeline.Pipeline",
+        "sklearn_version": sklearn.__version__,
+        "requires_scaling": "scaler" in getattr(artifact, "named_steps", {}),
         "test_metrics": test_metrics,
         "validation_results": validation_results or [],
         "hyperparameter_search": search_results or [],

@@ -14,6 +14,7 @@ from sklearn.metrics import (
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.pipeline import Pipeline
 
 from .data_processing import DatasetSplit
 
@@ -175,4 +176,9 @@ class ModelTrainer:
         print("\nTest metrics:")
         for metric, value in test_metrics.items():
             print(metric, ":", round(value, 4))
-        return model, scaler, model_name, test_metrics
+        if scaler is not None:
+            final_model = Pipeline([("scaler", scaler), ("classifier", model)])
+        else:
+            final_model = Pipeline([("classifier", model)])
+        final_model.fit(split.x_train_val, split.y_train_val)
+        return final_model, None, model_name, test_metrics
