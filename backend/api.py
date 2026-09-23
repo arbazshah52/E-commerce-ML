@@ -27,7 +27,7 @@ class SessionInput(BaseModel):
     hour: Optional[int] = None
     weekday: Optional[Union[int, str]] = None
 
-    model_config = {"extra": "allow"}
+    model_config = {"extra": "forbid"}
 
 class PredictionOutput(BaseModel):
     prediction: int
@@ -74,6 +74,15 @@ def loaded_model_name():
         return json.loads(META_PATH.read_text(encoding="utf-8")).get("model_name", "SVC")
     except (OSError, json.JSONDecodeError):
         return "SVC"
+
+
+def metadata_feature_names():
+    if not META_PATH.exists():
+        return None
+    try:
+        return json.loads(META_PATH.read_text(encoding="utf-8")).get("feature_names")
+    except (OSError, json.JSONDecodeError):
+        return None
 
 # Modellhantering
 def load_model(path: Path = MODEL_PATH):
@@ -122,6 +131,8 @@ def predict_order(session: SessionInput):
     if model is not None:
         raw_data = session.model_dump(exclude_unset=True)
         expected_features = getattr(model, "feature_names_in_", None)
+        if expected_features is None and isinstance(model, Pipeline):
+            expected_features = metadata_feature_names()
 
         if expected_features is not None:
             data = {}
