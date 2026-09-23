@@ -58,7 +58,7 @@ def test_predict_invalid_data_types_return_422(client, invalid_field, invalid_va
     assert response.status_code == 422
 
 
-def test_predict_accepts_extra_fields(client, monkeypatch):
+def test_predict_rejects_extra_fields(client, monkeypatch):
     monkeypatch.setattr(api, "model", None)
     payload = {
         "num_clicks": 2,
@@ -69,7 +69,7 @@ def test_predict_accepts_extra_fields(client, monkeypatch):
         "custom_tag": 999,
     }
     response = client.post("/predict", json=payload)
-    assert response.status_code == 200
+    assert response.status_code == 422
 
 
 def test_health_reports_model_name(client, monkeypatch):

@@ -16,7 +16,10 @@ def test_checked_in_model_matches_metadata_contract():
     model = api.load_model(MODEL_PATH)
 
     assert model is not None
+    assert model.__class__.__name__ == "Pipeline"
     assert metadata["model_name"] == "SVC"
+    assert metadata["artifact_type"] == "sklearn.pipeline.Pipeline"
+    assert metadata["sklearn_version"] == "1.9.1"
     assert metadata["feature_names"] == FEATURE_COLUMNS
     assert list(model.feature_names_in_) == FEATURE_COLUMNS
     assert metadata["requires_scaling"] is True
