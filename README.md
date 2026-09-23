@@ -2,6 +2,40 @@
 
 Machine-learning project that predicts whether an e-commerce session will result in an order. It contains a backend prediction service, a Streamlit frontend, a reproducible training pipeline, Docker Compose configuration, and CI checks.
 
+## Published application
+
+- Backend API: https://e-commerce-ml-1b2l.onrender.com
+- Frontend: https://e-commerce-ml-xxsbmr3nlkqsgc6hbmmby2.streamlit.app/
+- API documentation: https://e-commerce-ml-1b2l.onrender.com/docs
+- API health: https://e-commerce-ml-1b2l.onrender.com/health
+
+The Streamlit deployment uses:
+
+```text
+API_URL=https://e-commerce-ml-1b2l.onrender.com
+```
+
+The project uses `model/metadata.json` for model identity and reproducibility. MLflow is not required for the deployed model.
+
+## Start from a clean clone
+
+```bash
+git clone <repository-url>
+cd E-commerce-ML
+python -m venv .venv
+source .venv/bin/activate       # Windows PowerShell: .venv\\Scripts\\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+The checked-in files under `model/` are ready for inference after installation. To recreate the model artifacts from the checked-in data, run:
+
+```bash
+python -m backend.train
+```
+
+This regenerates `model/ecommerce_pipeline.joblib` and `model/metadata.json` from `data/events_10000_sessions.csv`. The metadata records the model name, metrics, feature order, artifact type, and scikit-learn version.
+
 ## Start the project
 
 The easiest way to run the complete system is Docker Desktop with Docker Compose:
@@ -62,7 +96,7 @@ hour
 weekday
 ```
 
-For sessions containing an order, only clicks and carts before the first order are used. The checked-in model is currently an SVC with scaling. Its metadata and recorded test metrics are stored in `model/metadata.json`.
+For sessions containing an order, only clicks and carts before the first order are used. The checked-in model is currently an SVC with scaling. The training code saves preprocessing and the classifier together as a scikit-learn `Pipeline`; the API also supports loading the older model/scaler bundle format for backward compatibility. Its metadata and recorded test metrics are stored in `model/metadata.json`.
 
 The saved model artifact must be loaded with the same scikit-learn version used during training. Recreate or retrain the artifact when changing scikit-learn versions; otherwise model loading can produce compatibility warnings or invalid inference results.
 
@@ -174,7 +208,7 @@ service first, then deploy the Streamlit app and set its environment variable:
 For Streamlit Community Cloud, add this under **App settings > Secrets**:
 
 ```toml
-API_URL = "https://<your-backend-host>"
+API_URL = "https://e-commerce-ml-1b2l.onrender.com"
 API_TIMEOUT_SECONDS = "5"
 ```
 
@@ -182,7 +216,7 @@ For other hosting providers, configure the same values as environment
 variables:
 
 ```text
-API_URL=https://<your-backend-host>
+API_URL=https://e-commerce-ml-1b2l.onrender.com
 API_TIMEOUT_SECONDS=5
 ```
 
@@ -197,7 +231,7 @@ uvicorn backend.api:app --host 0.0.0.0 --port $PORT
 ```
 
 Verify the backend before opening the frontend by visiting
-`https://<your-backend-host>/health`. It should return `status: ok` and
+`https://e-commerce-ml-1b2l.onrender.com/health`. It should return `status: ok` and
 `model_loaded: true`. The frontend uses a 0.5-second request timeout by
 default; set `API_TIMEOUT_SECONDS=5` or higher if the provider has a slower
 cold start.
