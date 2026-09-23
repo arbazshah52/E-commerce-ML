@@ -1,5 +1,7 @@
 {
   "model_name": "SVC",
+  "artifact_type": "sklearn.pipeline.Pipeline",
+  "sklearn_version": "1.9.1",
   "requires_scaling": true,
   "test_metrics": {
     "accuracy": 0.823321554770318,
